@@ -124,7 +124,8 @@ public class BFI{
           System.out.print((char)v3);
           break;
         case COMMAND_READ_DATA:
-          //ToDo
+          byte v4 = (byte)System.in.read();
+          this.tape.set(v4);
           break;
         case COMMAND_JUMP_FORWARD:
           if(this.tape.getValue() == 0){
