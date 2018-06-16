@@ -88,7 +88,7 @@ public class BFI{
     return head;
   }
 
-  private void evaluate(){
+  private void evaluate() throws Exception{
 //this.dump();
     Node<Character> command = this.commands;
     while(command != null){
@@ -127,7 +127,6 @@ public class BFI{
           //ToDo
           break;
         case COMMAND_JUMP_FORWARD:
-          //ToDo
           if(this.tape.getValue() == 0){
             int nest = 0;
             while(command != null){
@@ -142,13 +141,12 @@ public class BFI{
                     --nest;
                 }
               }else{
-                //exception
+                throw new Exception("Error: Couldn't find matching ']'");
               }
             }
           }
           break;
         case COMMAND_JUMP_BACK:
-          //ToDo
           if(this.tape.getValue() != 0){
             int nest = 0;
             while(command != null){
@@ -163,7 +161,7 @@ public class BFI{
                     --nest;
                 }
               }else{
-                //exception
+                throw new Exception("Error: Couldn't find matching '['");
               }
             }
           }
@@ -173,7 +171,6 @@ public class BFI{
       }
       command = command.getNext();
     }
-    System.out.println();
   }
 
   private void dump(){
@@ -207,10 +204,14 @@ public class BFI{
         source.add((char)c);
       }
     }catch(IOException e){
-      e.printStackTrace();
+      System.err.println(e.getMessage());
     }
 
-    new BFI(source).evaluate();
+    try{
+      new BFI(source).evaluate();
+    }catch(Exception e){
+      System.err.println(e.getMessage());
+    }
   }
 
 }
