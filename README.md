@@ -32,7 +32,7 @@ $ java BFI ./test/single_line.bf
 $ 0
 ```
 
-4. Run other tests. First, move to the **bfi/test** directory.
+4. Run other tests. First, move to the **bfi/test** directory. Then, run the shell script.
 ```bash
 $ # run tests
 $ ./run_tests.sh
