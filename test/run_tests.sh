@@ -20,6 +20,9 @@ else
     echo "***FAIL"
   fi
 
+  if [[ ! -e "./empty.bf" ]]; then
+    touch empty.bf
+  fi
   echo ""
   echo "Test (file in): empty.bf"
   out=`java BFI empty.bf 2>&1`
@@ -28,7 +31,6 @@ else
   else
     echo "***FAIL"
   fi
-
 
   echo ""
   echo "Test (file in): single_line.bf"
@@ -61,6 +63,24 @@ else
   echo "Test (file in): missing_open_square_bracket.bf"
   out=`java BFI missing_open_square_bracket.bf 2>&1`
   if [[ "${out}" == "Error: Couldn't find matching '['" ]]; then
+    echo "Pass"
+  else
+    echo "***FAIL"
+  fi
+
+  echo ""
+  echo "Test (file in): single_read_in.bf"
+  out=`echo "a" | java BFI single_read_in.bf 2>&1`
+  if [[ "${out}" == "a" ]]; then
+    echo "Pass"
+  else
+    echo "***FAIL"
+  fi
+
+  echo ""
+  echo "Test (file in): multiple_read_in.bf"
+  out=`java BFI multiple_read_in.bf 2>&1 < input.txt`
+  if [[ "${out}" == "x" ]]; then
     echo "Pass"
   else
     echo "***FAIL"
