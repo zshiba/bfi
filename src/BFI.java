@@ -1,0 +1,216 @@
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.Vector;
+
+public class BFI{
+
+  private static class Node<T>{
+    private T value;
+    private Node<T> previous;
+    private Node<T> next;
+
+    Node(T value){
+      this.set(value);
+      this.setPrevious(null);
+      this.setNext(null);
+    }
+
+    void set(T value){
+      this.value = value;
+    }
+    void setPrevious(Node<T> node){
+      this.previous = node;
+    }
+    void setNext(Node<T> node){
+      this.next = node;
+    }
+
+    T getValue(){
+      return this.value;
+    }
+    Node<T> getNext(){
+      return this.next;
+    }
+    Node<T> getPrevious(){
+      return this.previous;
+    }
+  }
+
+  private static final char COMMAND_INCREMENT_POINTER = '>';
+  private static final char COMMAND_DECREMENT_POINTER = '<';
+  private static final char COMMAND_INCREMENT_DATA    = '+';
+  private static final char COMMAND_DECREMENT_DATA    = '-';
+  private static final char COMMAND_WRITE_DATA        = '.';
+  private static final char COMMAND_READ_DATA         = ',';
+  private static final char COMMAND_JUMP_FORWARD      = '[';
+  private static final char COMMAND_JUMP_BACK         = ']';
+
+  private Node<Character> commands;
+  private Node<Byte> tape;
+
+  public BFI(Vector<Character> source){
+    Vector<Character> tokens = this.tokenize(source);
+    this.commands = this.parse(tokens);
+    this.tape = new Node<>((byte)0);
+  }
+
+  private Vector<Character> tokenize(Vector<Character> source){
+    Vector<Character> tokens = new Vector<>();
+    for(int i = 0; i < source.size(); i++){
+      char s = source.get(i);
+      if(s == COMMAND_INCREMENT_POINTER || s == COMMAND_DECREMENT_POINTER ||
+         s == COMMAND_INCREMENT_DATA    || s == COMMAND_DECREMENT_DATA    ||
+         s == COMMAND_WRITE_DATA        || s == COMMAND_READ_DATA         ||
+         s == COMMAND_JUMP_FORWARD      || s == COMMAND_JUMP_BACK)
+        tokens.add(s);
+    }
+    return tokens;
+  }
+
+  private Node<Character> parse(Vector<Character> tokens){
+    Node<Character> head = null;
+    Node<Character> tail = null;
+    for(int i = 0; i < tokens.size(); i++){
+      Character c = tokens.get(i);
+      Node<Character> newbie = new Node<>(c);
+      if(tail == null){
+        head = newbie;
+      }else{
+        tail.setNext(newbie);
+        newbie.setPrevious(tail);
+      }
+      tail = newbie;
+    }
+    return head;
+  }
+
+  private void evaluate(){
+//this.dump();
+    Node<Character> command = this.commands;
+    while(command != null){
+      switch(command.getValue()){
+        case COMMAND_INCREMENT_POINTER:
+          Node<Byte> next = this.tape.getNext();
+          if(next == null){
+            next = new Node<>((byte)0);
+            this.tape.setNext(next);
+            next.setPrevious(this.tape);
+          }
+          this.tape = next;
+          break;
+        case COMMAND_DECREMENT_POINTER:
+          Node<Byte> previous = this.tape.getPrevious();
+          if(previous == null){
+            previous = new Node<>((byte)0);
+            this.tape.setPrevious(previous);
+            previous.setNext(this.tape);
+          }
+          this.tape = previous;
+          break;
+        case COMMAND_INCREMENT_DATA:
+          byte v1 = (byte)(this.tape.getValue() + 1);
+          this.tape.set(v1);
+          break;
+        case COMMAND_DECREMENT_DATA:
+          byte v2 = (byte)(this.tape.getValue() - 1);
+          this.tape.set(v2);
+          break;
+        case COMMAND_WRITE_DATA:
+          byte v3 = this.tape.getValue();
+          System.out.print((char)v3);
+          break;
+        case COMMAND_READ_DATA:
+          //ToDo
+          break;
+        case COMMAND_JUMP_FORWARD:
+          //ToDo
+          if(this.tape.getValue() == 0){
+            int nest = 0;
+            while(command != null){
+              command = command.getNext();
+              if(command != null){
+                if(command.getValue() == COMMAND_JUMP_FORWARD){
+                  ++nest;
+                }else if(command.getValue() == COMMAND_JUMP_BACK){
+                  if(nest == 0)
+                    break;
+                  else
+                    --nest;
+                }
+              }else{
+                //exception
+              }
+            }
+          }
+          break;
+        case COMMAND_JUMP_BACK:
+          //ToDo
+          if(this.tape.getValue() != 0){
+            int nest = 0;
+            while(command != null){
+              command = command.getPrevious();
+              if(command != null){
+                if(command.getValue() == COMMAND_JUMP_BACK){
+                  ++nest;
+                }else if(command.getValue() == COMMAND_JUMP_FORWARD){
+                  if(nest == 0)
+                    break;
+                  else
+                    --nest;
+                }
+              }else{
+                //exception
+              }
+            }
+          }
+          break;
+        default:
+          break;
+      }
+      command = command.getNext();
+    }
+    System.out.println();
+  }
+
+  private void dump(){
+    Node<Character> target = this.commands;
+    while(target != null){
+      Character value = target.getValue();
+      System.out.println(String.valueOf(value));
+      target = target.getNext();
+    }
+  }
+
+  public static void main(String[] args){
+    InputStream in = null;
+    if(args.length > 0){
+      try{
+        in = new FileInputStream(args[0]);
+      }catch(FileNotFoundException e){
+        System.err.println("Error: File not found, \"" + args[0] + "\"");
+        System.exit(1);
+      }
+    }else{
+      in = System.in;
+    }
+
+    Vector<Character> source = new Vector<>();
+    try(
+      Reader r = new InputStreamReader(in);
+    ){
+      int c;
+      while((c = r.read()) != -1){
+        source.add((char)c);
+      }
+    }catch(IOException e){
+      e.printStackTrace();
+    }
+
+    new BFI(source).evaluate();
+  }
+
+}
