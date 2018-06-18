@@ -17,19 +17,19 @@ BFI supports input from stdin and file.
 $ # input from stdin. This prints 0. (See also the Limitation section below.)
 $ java BFI
 ++++++++++++++++++++++++++++++++++++++++++++++++.
-$ 0
+0
 ```
 
 ```bash
 $ # input from stdin. This prints 0.
 $ cat ./test/single_line.bf | java BFI 
-$ 0
+0
 ```
 
 ```bash
 $ # input from a file. This prints 0.
 $ java BFI ./test/single_line.bf
-$ 0
+0
 ```
 
 4. Run other tests. First, move to the **bfi/test** directory. Then, run the shell script.
